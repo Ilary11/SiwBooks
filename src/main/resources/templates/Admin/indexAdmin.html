@@ -2,6 +2,7 @@
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Area Admin - SiwBooks</title>
     <link rel="stylesheet" href="/css/stile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -20,6 +21,20 @@
         </div>
     </nav>
     <main style="padding: 2rem;">
+        <!-- Messaggi di errore e successo -->
+        <div th:if="${error}" class="error-message" style="background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 1rem; margin-bottom: 1rem; border-radius: 5px; font-weight: bold;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${error}"></span>
+        </div>
+        
+        <div th:if="${param.success}" id="successMessage" class="success-message" style="background-color: #28a745; border: 1px solid #1e7e34; color: white; padding: 1rem; margin-bottom: 1rem; border-radius: 5px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative;">
+            <button onclick="closeSuccessMessage()" style="position: absolute; top: 5px; right: 10px; background: none; border: none; color: white; font-size: 18px; cursor: pointer; font-weight: bold;">&times;</button>
+            <i class="fas fa-check-circle"></i>
+            <span th:if="${#strings.contains(param.success, 'autore_deleted')}">&check; Autore eliminato con successo!</span>
+            <span th:if="${#strings.contains(param.success, 'libro_deleted')}">&check; Libro eliminato con successo! Tutte le recensioni associate sono state eliminate automaticamente.</span>
+            <span th:if="${#strings.contains(param.success, 'recensione_deleted')}">&check; Recensione eliminata con successo!</span>
+        </div>
+        
         <div class="search-bar-unique-container" style="display: flex; justify-content: center; margin-bottom: 2.5rem; margin-top:2rem;">
             <form th:action="@{/admin/search}" method="get" style="display:flex; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.10); border-radius:30px; background:white; padding:0.2rem 1rem; min-width:400px; max-width:600px; width:100%;">
                 <select name="tipo" style="border:none; background:transparent; font-size:1.1rem; outline:none; margin-right:0.7rem; color:#4a4e69;">
@@ -191,6 +206,43 @@
         function confirmDelete(id, type) {
             if (confirm('Sei sicuro di voler eliminare questo ' + type + '?')) {
                 window.location.href = '/admin/elimina' + type.charAt(0).toUpperCase() + type.slice(1) + '/' + id;
+            }
+        }
+        
+        // Script per far sparire automaticamente il messaggio di successo
+        document.addEventListener('DOMContentLoaded', function() {
+            const successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+                // Mostra il messaggio con un'animazione di fade-in
+                successMessage.style.opacity = '0';
+                successMessage.style.transition = 'opacity 0.5s ease-in';
+                
+                setTimeout(function() {
+                    successMessage.style.opacity = '1';
+                }, 100);
+                
+                // Nasconde il messaggio dopo 5 secondi con un'animazione di fade-out
+                setTimeout(function() {
+                    successMessage.style.transition = 'opacity 0.5s ease-out';
+                    successMessage.style.opacity = '0';
+                    
+                    setTimeout(function() {
+                        successMessage.style.display = 'none';
+                    }, 500);
+                }, 5000);
+            }
+        });
+        
+        // Funzione per chiudere manualmente il messaggio di successo
+        function closeSuccessMessage() {
+            const successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+                successMessage.style.transition = 'opacity 0.3s ease-out';
+                successMessage.style.opacity = '0';
+                
+                setTimeout(function() {
+                    successMessage.style.display = 'none';
+                }, 300);
             }
         }
     </script>

@@ -323,30 +323,156 @@ public class AdminController {
     }
 
     @GetMapping("/admin/eliminaAutore/{id}")
-    public String eliminaAutore(@PathVariable Long id) {
-        Autore autore = autoreRepository.findById(id).orElse(null);
-        if (autore != null) {
-            autoreRepository.delete(autore);
+    public String eliminaAutore(@PathVariable Long id, Model model) {
+        try {
+            Autore autore = autoreRepository.findById(id).orElse(null);
+            if (autore != null) {
+                // Verifica se l'autore ha libri associati
+                if (autore.getLibriScritti() != null && !autore.getLibriScritti().isEmpty()) {
+                    StringBuilder libriAssociati = new StringBuilder();
+                    for (Libro libro : autore.getLibriScritti()) {
+                        if (libriAssociati.length() > 0) {
+                            libriAssociati.append(", ");
+                        }
+                        libriAssociati.append(libro.getTitolo());
+                    }
+                    
+                    model.addAttribute("error", "Impossibile eliminare l'autore '" + autore.getNome() + " " + autore.getCognome() + 
+                        "'. È autore dei seguenti libri: " + libriAssociati.toString() + 
+                        ". Elimina prima i libri associati.");
+                    
+                    // Ricarica i dati per la dashboard
+                    String adminName = "Admin"; // Potresti passarlo come parametro se necessario
+                    model.addAttribute("adminName", adminName);
+                    
+                    List<Libro> libri = new ArrayList<>();
+                    libroRepository.findAll().forEach(libri::add);
+                    model.addAttribute("libri", libri);
+                    
+                    Map<Long, List<Recensione>> recensioniPerLibro = new HashMap<>();
+                    for (Libro libro : libri) {
+                        List<Recensione> recensioni = new ArrayList<>();
+                        recensioneRepository.findByLibro(libro).forEach(recensioni::add);
+                        recensioniPerLibro.put(libro.getId(), recensioni);
+                    }
+                    model.addAttribute("recensioniPerLibro", recensioniPerLibro);
+                    
+                    List<Autore> autori = new ArrayList<>();
+                    autoreRepository.findAll().forEach(autori::add);
+                    model.addAttribute("autori", autori);
+                    
+                    return "Admin/indexAdmin";
+                }
+                
+                autoreRepository.delete(autore);
+                return "redirect:/admin/index?success=autore_deleted";
+            }
+            return "redirect:/admin/index";
+        } catch (Exception e) {
+            // Gestisce anche altre eccezioni di database
+            logger.error("Errore durante l'eliminazione dell'autore: ", e);
+            model.addAttribute("error", "Si è verificato un errore durante l'eliminazione dell'autore. " + e.getMessage());
+            
+            // Ricarica i dati per la dashboard
+            String adminName = "Admin";
+            model.addAttribute("adminName", adminName);
+            
+            List<Libro> libri = new ArrayList<>();
+            libroRepository.findAll().forEach(libri::add);
+            model.addAttribute("libri", libri);
+            
+            Map<Long, List<Recensione>> recensioniPerLibro = new HashMap<>();
+            for (Libro libro : libri) {
+                List<Recensione> recensioni = new ArrayList<>();
+                recensioneRepository.findByLibro(libro).forEach(recensioni::add);
+                recensioniPerLibro.put(libro.getId(), recensioni);
+            }
+            model.addAttribute("recensioniPerLibro", recensioniPerLibro);
+            
+            List<Autore> autori = new ArrayList<>();
+            autoreRepository.findAll().forEach(autori::add);
+            model.addAttribute("autori", autori);
+            
+            return "Admin/indexAdmin";
         }
-        return "redirect:/admin/index";
     }
 
     @GetMapping("/admin/eliminaLibro/{id}")
-    public String eliminaLibro(@PathVariable Long id) {
-        Libro libro = libroRepository.findById(id).orElse(null);
-        if (libro != null) {
-            libroRepository.delete(libro);
+    public String eliminaLibro(@PathVariable Long id, Model model) {
+        try {
+            Libro libro = libroRepository.findById(id).orElse(null);
+            if (libro != null) {
+                // Prima elimina tutte le recensioni associate al libro
+                List<Recensione> recensioni = new ArrayList<>();
+                recensioneRepository.findByLibro(libro).forEach(recensioni::add);
+                if (!recensioni.isEmpty()) {
+                    recensioneRepository.deleteAll(recensioni);
+                    logger.info("Eliminate {} recensioni associate al libro '{}'", recensioni.size(), libro.getTitolo());
+                }
+                
+                // Poi elimina il libro
+                libroRepository.delete(libro);
+                logger.info("Libro '{}' eliminato con successo", libro.getTitolo());
+                return "redirect:/admin/index?success=libro_deleted";
+            }
+            return "redirect:/admin/index";
+        } catch (Exception e) {
+            logger.error("Errore durante l'eliminazione del libro: ", e);
+            model.addAttribute("error", "Si è verificato un errore durante l'eliminazione del libro: " + e.getMessage());
+            
+            // Ricarica i dati per la dashboard
+            String adminName = "Admin";
+            model.addAttribute("adminName", adminName);
+            
+            List<Libro> libri = new ArrayList<>();
+            libroRepository.findAll().forEach(libri::add);
+            model.addAttribute("libri", libri);
+            
+            Map<Long, List<Recensione>> recensioniPerLibro = new HashMap<>();
+            for (Libro libroItem : libri) {
+                List<Recensione> recensioni = new ArrayList<>();
+                recensioneRepository.findByLibro(libroItem).forEach(recensioni::add);
+                recensioniPerLibro.put(libroItem.getId(), recensioni);
+            }
+            model.addAttribute("recensioniPerLibro", recensioniPerLibro);
+            
+            List<Autore> autori = new ArrayList<>();
+            autoreRepository.findAll().forEach(autori::add);
+            model.addAttribute("autori", autori);
+            
+            return "Admin/indexAdmin";
         }
-        return "redirect:/admin/index";
     }
 
     @PostMapping("/admin/deleteRecensione")
-    public String deleteRecensione(@RequestParam("recensioneId") Long recensioneId) {
+    public String deleteRecensione(@RequestParam("recensioneId") Long recensioneId, Model model) {
         try {
             recensioneRepository.deleteById(recensioneId);
             return "redirect:/admin/index?success=recensione_deleted";
         } catch (Exception e) {
-            return "redirect:/admin/index?error=delete_failed";
+            model.addAttribute("error", "Si è verificato un errore durante l'eliminazione della recensione: " + e.getMessage());
+            
+            // Ricarica i dati per la dashboard
+            String adminName = "Admin";
+            model.addAttribute("adminName", adminName);
+            
+            List<Libro> libri = new ArrayList<>();
+            libroRepository.findAll().forEach(libri::add);
+            model.addAttribute("libri", libri);
+            
+            Map<Long, List<Recensione>> recensioniPerLibro = new HashMap<>();
+            for (Libro libro : libri) {
+                List<Recensione> recensioni = new ArrayList<>();
+                recensioneRepository.findByLibro(libro).forEach(recensioni::add);
+                recensioniPerLibro.put(libro.getId(), recensioni);
+            }
+            model.addAttribute("recensioniPerLibro", recensioniPerLibro);
+            
+            List<Autore> autori = new ArrayList<>();
+            autoreRepository.findAll().forEach(autori::add);
+            model.addAttribute("autori", autori);
+            
+            return "Admin/indexAdmin";
         }
     }
 

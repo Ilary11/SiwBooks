@@ -117,6 +117,14 @@ public class Autore {
 		this.dataDiNascita = dataDiNascita;
 	}
 	
+	public Set<Libro> getLibriScritti() {
+		return libriScritti;
+	}
+
+	public void setLibriScritti(Set<Libro> libriScritti) {
+		this.libriScritti = libriScritti;
+	}
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(nome, cognome);
