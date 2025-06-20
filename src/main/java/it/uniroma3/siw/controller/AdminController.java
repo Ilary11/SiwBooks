@@ -52,7 +52,7 @@ public class AdminController {
     @Autowired
     private AutoreService autoreService;
 
-    private final String uploadDirectory = System.getProperty("user.dir") + "/uploads/images/";
+    private final String uploadDirectory = "uploads/images/";
 
     @GetMapping("/admin/index")
     public String indexAdmin(Model model, Authentication authentication) {
