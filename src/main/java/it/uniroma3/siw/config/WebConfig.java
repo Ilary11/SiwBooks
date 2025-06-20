@@ -9,9 +9,13 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Mappa /images/** a uploads/images/
+        // Mappa /images/** a entrambi i possibili percorsi delle immagini
+        
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:uploads/images/");
+                .addResourceLocations(
+                    "file:uploads/images/",           // Per esecuzione da Eclipse
+                    "file:SiwBooks/uploads/images/"   // Per esecuzione da SiwBooksGit
+                );
         
         // Mantieni anche il mapping per le risorse statiche classpath
         registry.addResourceHandler("/static/**")
