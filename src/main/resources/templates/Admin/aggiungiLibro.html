@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Aggiungi Libro - SiwBooks</title>
+    <link rel="stylesheet" href="/css/stile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="/images/logoLibri.jpg" alt="Logo SiwBooks" class="navbar-logo">
+            <span class="navbar-title">SiwBooks</span>
+        </div>
+        <div class="navbar-right">
+            <a href="/admin/index" class="login-link">Torna alla Dashboard</a>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="form-container">
+        <h2>Aggiungi un nuovo libro</h2>
+        <form th:action="@{/admin/aggiungiLibro}" method="post" enctype="multipart/form-data" id="addBookForm">
+            <label for="titolo">Titolo</label>
+            <input type="text" id="titolo" name="titolo" required>
+
+            <label for="anno">Anno di pubblicazione</label>
+            <input type="number" id="anno" name="anno" min="1900" max="2025" required>
+
+            <label>Autori</label>
+            <ul style="list-style: none; padding: 0; margin: 0 0 1rem 0;">
+                <li th:each="autore : ${autori}" style="display: flex; align-items: center; margin-bottom: 0.1rem; justify-content: flex-start;">
+                    <label th:for="'autore-' + ${autore.id}" th:text="${autore.nome + ' ' + autore.cognome}" style="flex:1; text-align:left; cursor:pointer; margin-right:0.5em;"></label>
+                    <input type="checkbox" th:id="'autore-' + ${autore.id}" name="autoreIds" th:value="${autore.id}">
+                </li>
+            </ul>
+
+            <label for="immagini">Immagini del libro</label>
+            <div class="file-input-container">
+                <label for="immagini" class="file-input-label">
+                    <i class="fas fa-cloud-upload-alt"></i> Seleziona le immagini
+                </label>
+                <input type="file" id="immagini" name="immagini" accept="image/*" multiple required class="file-input">
+            </div>
+            <div class="selected-files"></div>
+            <div class="image-preview-container"></div>
+
+            <button type="submit" class="btn-submit">Aggiungi libro</button>
+        </form>
+    </div>
+
+    <footer class="main-footer">
+        <p>&copy; 2025 SiwBooks.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('immagini');
+            const previewContainer = document.querySelector('.image-preview-container');
+            const selectedFilesText = document.querySelector('.selected-files');
+            const form = document.getElementById('addBookForm');
+            let currentIndex = 0;
+            let allFiles = [];
+            
+            function updatePreview() {
+                previewContainer.innerHTML = '';
+                
+                if (allFiles.length > 0) {
+                    selectedFilesText.textContent = `${allFiles.length} immagine${allFiles.length > 1 ? 'i' : ''} selezionata${allFiles.length > 1 ? 'e' : ''}`;
+                    
+                    // Mostra solo l'immagine corrente
+                    const currentFile = allFiles[currentIndex];
+                    if (currentFile && currentFile.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const preview = document.createElement('div');
+                            preview.className = 'image-preview';
+                            preview.innerHTML = `
+                                <img src="${e.target.result}" alt="Anteprima">
+                                <button type="button" class="remove-image" data-index="${currentIndex}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            `;
+                            previewContainer.appendChild(preview);
+                        };
+                        reader.readAsDataURL(currentFile);
+                    }
+                    
+                    // Aggiungi i controlli di navigazione se ci sono più immagini
+                    if (allFiles.length > 1) {
+                        const controls = document.createElement('div');
+                        controls.className = 'carousel-controls';
+                        controls.innerHTML = `
+                            <button type="button" class="carousel-prev" onclick="prevImage()">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <span class="carousel-counter">${currentIndex + 1} / ${allFiles.length}</span>
+                            <button type="button" class="carousel-next" onclick="nextImage()">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        `;
+                        previewContainer.appendChild(controls);
+                    }
+                } else {
+                    selectedFilesText.textContent = '';
+                }
+            }
+            
+            window.nextImage = function() {
+                if (allFiles.length > 0) {
+                    currentIndex = (currentIndex + 1) % allFiles.length;
+                    updatePreview();
+                }
+            };
+            
+            window.prevImage = function() {
+                if (allFiles.length > 0) {
+                    currentIndex = (currentIndex - 1 + allFiles.length) % allFiles.length;
+                    updatePreview();
+                }
+            };
+            
+            fileInput.addEventListener('change', function(e) {
+                const newFiles = Array.from(e.target.files);
+                
+                // Aggiungi i nuovi file all'array
+                newFiles.forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        allFiles.push(file);
+                    }
+                });
+                
+                // Aggiorna il fileInput con tutti i file
+                const dt = new DataTransfer();
+                allFiles.forEach(file => dt.items.add(file));
+                fileInput.files = dt.files;
+                
+                currentIndex = allFiles.length - 1; // Mostra l'ultima immagine aggiunta
+                updatePreview();
+            });
+            
+            previewContainer.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-image')) {
+                    const button = e.target.closest('.remove-image');
+                    const index = parseInt(button.dataset.index);
+                    
+                    // Rimuovi il file dall'array
+                    allFiles.splice(index, 1);
+                    
+                    // Aggiorna il fileInput
+                    const dt = new DataTransfer();
+                    allFiles.forEach(file => dt.items.add(file));
+                    fileInput.files = dt.files;
+                    
+                    // Aggiorna l'indice corrente
+                    currentIndex = Math.min(currentIndex, allFiles.length - 1);
+                    if (currentIndex < 0) currentIndex = 0;
+                    
+                    updatePreview();
+                }
+            });
+            
+            form.addEventListener('submit', function(e) {
+                if (allFiles.length === 0) {
+                    e.preventDefault();
+                    alert('Seleziona almeno un\'immagine');
+                    return;
+                }
+                // Validazione autori: almeno uno selezionato
+                const autoreCheckboxes = document.querySelectorAll('input[name="autoreIds"]');
+                let autoreSelezionato = false;
+                autoreCheckboxes.forEach(cb => { if (cb.checked) autoreSelezionato = true; });
+                if (!autoreSelezionato) {
+                    e.preventDefault();
+                    alert('Seleziona almeno un autore per il libro');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

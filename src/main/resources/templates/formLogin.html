@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SiwBooks - Login</title>
+    <link rel="stylesheet" href="/css/stile.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="/images/logoLibri.jpg" alt="Logo SiwBooks" class="navbar-logo">
+            <span class="navbar-title">SiwBooks</span>
+        </div>
+        <div class="navbar-right">
+            <span class="navbar-welcome" th:if="${userDetails}">Benvenuto, <span th:text="${userDetails.username}"></span></span>
+            <form th:action="@{/logout}" method="post" style="display:inline;" th:if="${userDetails}">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+            <a href="/login" class="login-link" th:unless="${userDetails}">Login</a>
+            <a th:href="@{/register}" class="register-link-header" th:unless="${userDetails}">Registrati</a>
+        </div>
+    </nav>
+    <div class="login-container">
+        <div class="logo-section">
+            <a href="/">
+                <img src="/images/logoLibri.jpg" alt="SiwBooks Logo" class="app-logo"/>
+            </a>
+        </div>
+
+        <h1 class="login-title" style="color:#22223b;">Accedi al tuo Account</h1>
+
+        <form th:action="@{/login}" method="POST" class="login-form">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input id="username" name="username" type="text" required placeholder="Inserisci il tuo username" />
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input id="password" name="password" type="password" required placeholder="Inserisci la tua password" />
+            </div>
+
+            <div th:if="${param.error != null}" class="error-message">
+                Username o password errati.
+            </div>
+
+            <button type="submit" class="submit-button">Accedi</button>
+        </form>
+
+        <div class="register-prompt">
+            Non hai un account? <a th:href="@{/register}" class="register-link-form">Registrati qui</a>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <p>&copy; 2025 SiwBooks.</p>
+    </footer>
+</body>
+</html>

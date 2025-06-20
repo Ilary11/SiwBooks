@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SiwBooks - Home</title>
+    <link rel="stylesheet" href="/css/stile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="/images/logoLibri.jpg" alt="Logo SiwBooks" class="navbar-logo">
+            <span class="navbar-title">SiwBooks</span>
+        </div>
+        <div class="navbar-right">
+            <a href="/login" class="login-link">Login</a>
+            <a href="/register" class="register-link-header">Registrati</a>
+        </div>
+    </nav>
+    <main>
+        <div class="search-bar-unique-container" style="display: flex; justify-content: center; margin-bottom: 2.5rem; margin-top:2rem;">
+            <form th:action="@{/search}" method="get" style="display:flex; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.10); border-radius:30px; background:white; padding:0.2rem 1rem; min-width:400px; max-width:600px; width:100%;">
+                <select name="tipo" style="border:none; background:transparent; font-size:1.1rem; outline:none; margin-right:0.7rem; color:#4a4e69;">
+                    <option value="libro">Libro</option>
+                    <option value="autore">Autore</option>
+                </select>
+                <input type="text" name="query" placeholder="Cerca per titolo libro, nome o cognome autore..." style="flex:1; border:none; outline:none; font-size:1.1rem; padding:0.7rem 0.5rem; background:transparent;">
+                <button type="submit" style="background:transparent; border:none; outline:none; cursor:pointer; margin-left:0.5rem;">
+                    <i class="fas fa-search" style="font-size:1.3rem; color:#4a4e69;"></i>
+                </button>
+            </form>
+        </div>
+        <h2 class="user-section-title">Lista dei libri</h2>
+        <div class="user-books-list">
+            <div th:if="${searchTipo == 'libro' and searchQuery != null and #lists.isEmpty(libri)}" class="user-books-empty">
+                Nessun libro trovato per la ricerca.
+            </div>
+            <div th:if="${#lists.isEmpty(libri) and (searchTipo == null or searchTipo == 'libro') and (searchQuery == null or searchQuery == '')}" class="user-books-empty">
+                Nessun libro presente nel database.
+            </div>
+            <div th:each="libro : ${libri}" class="user-book-card">
+                <!-- Carousel per le immagini del libro -->
+                <div th:if="${!libro.immagini.isEmpty()}" class="carousel-container">
+                    <div class="carousel" th:id="'carousel-' + ${libro.id}">
+                        <div th:each="img : ${libro.immagini}" class="carousel-item">
+                            <img th:src="${img.url}" alt="Copertina libro" />
+                        </div>
+                    </div>
+                    <button class="carousel-button carousel-prev" th:onclick="'prevSlide(' + ${libro.id} + ')'">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-button carousel-next" th:onclick="'nextSlide(' + ${libro.id} + ')'">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <div class="carousel-indicators" th:id="'indicators-' + ${libro.id}">
+                        <div th:each="img, stat : ${libro.immagini}" 
+                             class="carousel-indicator" 
+                             th:classappend="${stat.first} ? 'active' : ''"
+                             th:onclick="'goToSlide(' + ${libro.id} + ', ' + ${stat.index} + ')'">
+                        </div>
+                    </div>
+                </div>
+                <h3 th:text="${libro.titolo}" class="user-book-title"></h3>
+                <p class="user-book-year">Anno: <span th:text="${libro.anno}"></span></p>
+                <div class="user-book-authors">
+                    <b>Autori:</b>
+                    <span th:each="autore : ${libro.autori}" class="user-book-author">
+                        <span th:text="${autore.nome}"></span> <span th:text="${autore.cognome}"></span>
+                        <span class="user-book-author-nation">(<span th:text="${autore.nazionalita}"></span>)</span>
+                    </span>
+                </div>
+                <!-- Recensioni -->
+                <div class="user-book-reviews">
+                    <b>Recensioni:</b>
+                    <div th:if="${#lists.isEmpty(recensioniPerLibro.get(libro.id))}" class="user-book-no-reviews">
+                        <span>Nessuna recensione presente.</span>
+                    </div>
+                    <div th:each="rec : ${recensioniPerLibro.get(libro.id)}" class="user-book-review">
+                        <b th:text="${rec.titolo}"></b> -
+                        <span>Voto: <span th:text="${rec.voto}"></span>/5</span><br/>
+                        <span th:text="${rec.testo}"></span><br/>
+                        <span class="user-book-review-author">di <span th:text="${rec.utente.nome}"></span> <span th:text="${rec.utente.cognome}"></span></span>
+                    </div>
+                </div>
+                <!-- Login/Register Prompt -->
+                <div class="user-book-login-prompt">
+                    <p>Vuoi aggiungere una recensione? <a href="/login" class="login-link">Accedi</a> o <a href="/register" class="register-link-header">registrati</a>!</p>
+                </div>
+            </div>
+        </div>
+        <!-- Sezione Autori -->
+        <div class="user-authors-section">
+            <h2 class="user-section-title">Lista autori</h2>
+            <div class="user-authors-list">
+                <div th:if="${searchTipo == 'autore' and searchQuery != null and #lists.isEmpty(autori)}" class="user-authors-empty">
+                    Nessun autore trovato per la ricerca.
+                </div>
+                <div th:if="${#lists.isEmpty(autori) and (searchTipo == null or searchTipo == 'autore') and (searchQuery == null or searchQuery == '')}" class="user-authors-empty">
+                    Nessun autore presente nel database.
+                </div>
+                <div th:each="autore : ${autori}" class="user-author-card">
+                    <img th:if="${autore.urlFotografia}" th:src="${autore.urlFotografia}" alt="Foto autore" class="user-author-photo"/>
+                    <h3 th:text="${autore.nome + ' ' + autore.cognome}" class="user-author-name"></h3>
+                    <p class="user-author-birth">Nato il: <span th:text="${#temporals.format(autore.dataDiNascita, 'dd/MM/yyyy')}"></span></p>
+                    <p th:if="${autore.dataDiMorte}" class="user-author-death">Morto il: <span th:text="${#temporals.format(autore.dataDiMorte, 'dd/MM/yyyy')}"></span></p>
+                    <p class="user-author-nation">Nazionalita: <span th:text="${autore.nazionalita}"></span></p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="main-footer">
+        <p>&copy; 2025 SiwBooks.</p>
+    </footer>
+    <!-- Carousel script -->
+    <script>
+        const carouselStates = {};
+        function initCarousel(bookId) {
+            if (!carouselStates[bookId]) {
+                const carousel = document.getElementById('carousel-' + bookId);
+                const items = carousel.getElementsByClassName('carousel-item');
+                carouselStates[bookId] = {
+                    currentIndex: 0,
+                    totalItems: items.length
+                };
+            }
+        }
+        function updateCarousel(bookId) {
+            const state = carouselStates[bookId];
+            const carousel = document.getElementById('carousel-' + bookId);
+            const indicators = document.getElementById('indicators-' + bookId).children;
+            carousel.style.transform = `translateX(-${state.currentIndex * 100}%)`;
+            Array.from(indicators).forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === state.currentIndex);
+            });
+        }
+        function nextSlide(bookId) {
+            initCarousel(bookId);
+            const state = carouselStates[bookId];
+            state.currentIndex = (state.currentIndex + 1) % state.totalItems;
+            updateCarousel(bookId);
+        }
+        function prevSlide(bookId) {
+            initCarousel(bookId);
+            const state = carouselStates[bookId];
+            state.currentIndex = (state.currentIndex - 1 + state.totalItems) % state.totalItems;
+            updateCarousel(bookId);
+        }
+        function goToSlide(bookId, index) {
+            initCarousel(bookId);
+            carouselStates[bookId].currentIndex = index;
+            updateCarousel(bookId);
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const carousels = document.querySelectorAll('.carousel-container');
+            carousels.forEach(container => {
+                const carousel = container.querySelector('.carousel');
+                if (carousel) {
+                    const bookId = carousel.id.split('-')[1];
+                    initCarousel(bookId);
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

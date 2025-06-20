@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SiwBooks - Registrazione</title>
+    <link rel="stylesheet" href="/css/stile.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="/images/logoLibri.jpg" alt="Logo SiwBooks" class="navbar-logo">
+            <span class="navbar-title">SiwBooks</span>
+        </div>
+        <div class="navbar-right">
+            <span class="navbar-welcome" th:if="${userDetails}">Benvenuto, <span th:text="${userDetails.username}"></span></span>
+            <form th:action="@{/logout}" method="post" style="display:inline;" th:if="${userDetails}">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+            <a href="/login" class="login-link" th:unless="${userDetails}">Login</a>
+            <a th:href="@{/register}" class="register-link-header" th:unless="${userDetails}">Registrati</a>
+        </div>
+    </nav>
+    <div class="login-container"> <!-- Riutilizzo del contenitore per coerenza estetica -->
+        <div class="logo-section">
+            <a href="/">
+                <img src="/images/logoLibri.jpg" alt="SiwBooks Logo" class="app-logo"/>
+            </a>
+        </div>
+
+        <h1 class="login-title" style="color:#22223b;">Crea il tuo Account</h1>
+
+        <form th:action="@{/register}" method="POST" class="login-form">
+            <div th:object="${utente}">
+                <div class="form-group">
+                    <label for="nome">Nome:</label>
+                    <input id="nome" th:field="*{nome}" type="text" required />
+                    <span th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label for="cognome">Cognome:</label>
+                    <input id="cognome" th:field="*{cognome}" type="text" required />
+                    <span th:if="${#fields.hasErrors('cognome')}" th:errors="*{cognome}" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input id="email" th:field="*{email}" type="email" required />
+                    <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message"></span>
+                    <span th:if="${emailError}" class="error-message" th:text="${emailError}"></span>
+                </div>
+            </div>
+            <div th:object="${credentials}">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input id="username" th:field="*{username}" type="text" required />
+                    <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input id="password" th:field="*{password}" type="password" required />
+                    <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error-message"></span>
+                    <span th:if="${passwordError}" class="error-message" th:text="${passwordError}"></span>
+                </div>
+            </div>
+            <div th:if="${error}" class="error-message" th:text="${error}"></div>
+            <div th:if="${param.error != null}" class="error-message">
+                Si è verificato un errore durante la registrazione. Riprova.
+            </div>
+            <div th:if="${successMessage}" class="success-message">
+                <span th:text="${successMessage}"></span>
+            </div>
+            <button type="submit" class="submit-button">Registrati</button>
+        </form>
+
+        <div class="register-prompt">
+            Hai già un account? <a th:href="@{/login}" class="register-link-form">Accedi qui</a>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <p>&copy; 2025 SiwBooks.</p>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.login-form');
+        const emailInput = document.getElementById('email');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+
+        // Error spans
+        const emailError = document.createElement('span');
+        emailError.className = 'error-message';
+        emailInput.parentNode.appendChild(emailError);
+
+        const usernameError = document.createElement('span');
+        usernameError.className = 'error-message';
+        usernameInput.parentNode.appendChild(usernameError);
+
+        const passwordError = document.createElement('span');
+        passwordError.className = 'error-message';
+        passwordInput.parentNode.appendChild(passwordError);
+
+        // Helper functions
+        function validatePassword(pw) {
+            return pw.length >= 6 && /[!@#$%^&*()_+|,.<>/?]/.test(pw);
+        }
+
+        async function checkEmailExists(email) {
+            if (!email) return false;
+            const res = await fetch(`/api/check-email?email=${encodeURIComponent(email)}`);
+            return await res.json();
+        }
+
+        async function checkUsernameExists(username) {
+            if (!username) return false;
+            const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
+            return await res.json();
+        }
+
+        // Real-time validation email
+        emailInput.addEventListener('input', async function() {
+            emailError.textContent = '';
+            if (!emailInput.value) return;
+            if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailInput.value)) {
+                emailError.textContent = 'Email non valida.';
+                return;
+            }
+            if (await checkEmailExists(emailInput.value)) {
+                emailError.textContent = 'Email già esistente.';
+            }
+        });
+
+        // Real-time validation username
+        usernameInput.addEventListener('input', async function() {
+            usernameError.textContent = '';
+            if (!usernameInput.value) return;
+            if (await checkUsernameExists(usernameInput.value)) {
+                usernameError.textContent = 'Username già esistente.';
+            }
+        });
+
+        // Real-time validation password
+        passwordInput.addEventListener('input', function() {
+            passwordError.textContent = '';
+            if (!validatePassword(passwordInput.value)) {
+                passwordError.textContent = 'La password deve essere lunga almeno 6 caratteri e contenere almeno un carattere speciale.';
+            }
+        });
+
+        // Form submission validation
+        form.addEventListener('submit', async function(e) {
+            let valid = true;
+            emailError.textContent = '';
+            usernameError.textContent = '';
+            passwordError.textContent = '';
+
+            // Validate email
+            if (!emailInput.value || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailInput.value)) {
+                emailError.textContent = 'Email non valida.';
+                valid = false;
+            } else if (await checkEmailExists(emailInput.value)) {
+                emailError.textContent = 'Email già esistente.';
+                valid = false;
+            }
+
+            // Validate username
+            if (!usernameInput.value) {
+                usernameError.textContent = 'Username obbligatorio.';
+                valid = false;
+            } else if (await checkUsernameExists(usernameInput.value)) {
+                usernameError.textContent = 'Username già esistente.';
+                valid = false;
+            }
+
+            // Validate password
+            if (!validatePassword(passwordInput.value)) {
+                passwordError.textContent = 'La password deve essere lunga almeno 6 caratteri e contenere almeno un carattere speciale.';
+                valid = false;
+            }
+
+            if (!valid) {
+                e.preventDefault();
+            }
+        });
+    });
+    </script>
+</body>
+</html>

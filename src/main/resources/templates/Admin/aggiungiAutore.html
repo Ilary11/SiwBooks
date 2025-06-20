@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Aggiungi Autore - SiwBooks</title>
+    <link rel="stylesheet" href="/css/stile.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="/images/logoLibri.jpg" alt="Logo SiwBooks" class="navbar-logo">
+            <span class="navbar-title">SiwBooks</span>
+        </div>
+        <div class="navbar-right">
+            <a href="/admin/index" class="login-link">Torna alla Dashboard</a>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
+    </nav>
+    
+    <div class="form-container">
+        <h2>Aggiungi un nuovo autore</h2>
+        
+        <div th:if="${error}" class="error-message" th:text="${error}"></div>
+        
+        <form th:action="@{/admin/aggiungiAutore}" method="post" enctype="multipart/form-data">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" required>
+
+            <label for="cognome">Cognome</label>
+            <input type="text" id="cognome" name="cognome" required>
+
+            <label for="dataDiNascita">Data di nascita</label>
+            <input type="date" id="dataDiNascita" name="dataDiNascita" required>
+
+            <label for="dataDiMorte">Data di morte (opzionale)</label>
+            <input type="date" id="dataDiMorte" name="dataDiMorte">
+
+            <label for="nazionalita">Nazionalita</label>
+            <input type="text" id="nazionalita" name="nazionalita" required>
+
+            <label for="foto">Fotografia</label>
+            <input type="file" id="foto" name="foto" accept="image/*" required>
+
+            <button type="submit" class="btn-submit">Aggiungi autore</button>
+        </form>
+    </div>
+    <footer class="main-footer">
+        <p>&copy; 2025 SiwBooks.</p>
+    </footer>
+</body>
+</html> 

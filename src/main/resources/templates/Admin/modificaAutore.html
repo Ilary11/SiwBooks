@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifica Autore - SiwBooks</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background: #f7f7f7; }
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #22223b;
+            color: #fff;
+            padding: 0.5rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .navbar-left {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-logo {
+            height: 48px;
+            margin-right: 1rem;
+        }
+        .navbar-title {
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .logout-btn {
+            background: #9a8c98;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .logout-btn:hover {
+            background: #4a4e69;
+        }
+        .form-container {
+            background: #fff;
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 2rem 2.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+        h2 { color: #4a4e69; text-align: center; }
+        label { display: block; margin-top: 1.2rem; font-weight: bold; }
+        input, select { width: 100%; padding: 0.6rem; margin-top: 0.3rem; border-radius: 5px; border: 1px solid #ccc; }
+        .btn-submit {
+            background: #4a4e69;
+            color: #fff;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 2rem;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-submit:hover { background: #9a8c98; }
+        .error-message {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+        }
+        .current-photo {
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .current-photo img {
+            max-width: 200px;
+            border-radius: 50%;
+            border: 2px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="/images/logoLibri.jpg" alt="Logo SiwBooks" class="navbar-logo">
+            <span class="navbar-title">SiwBooks</span>
+        </div>
+        <div class="navbar-right">
+            <a href="/admin/index" style="color: #fff; text-decoration: none; margin-right: 1rem;">Torna alla Dashboard</a>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="form-container">
+        <h2>Modifica autore</h2>
+        
+        <div th:if="${error}" class="error-message" th:text="${error}"></div>
+        
+        <form th:action="@{/admin/modificaAutore/{id}(id=${autore.id})}" method="post" enctype="multipart/form-data">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" th:value="${autore.nome}" required>
+
+            <label for="cognome">Cognome</label>
+            <input type="text" id="cognome" name="cognome" th:value="${autore.cognome}" required>
+
+            <label for="dataDiNascita">Data di nascita</label>
+            <input type="date" id="dataDiNascita" name="dataDiNascita" th:value="${#temporals.format(autore.dataDiNascita, 'yyyy-MM-dd')}" required>
+
+            <label for="dataDiMorte">Data di morte (opzionale)</label>
+            <input type="date" id="dataDiMorte" name="dataDiMorte" th:value="${autore.dataDiMorte != null ? #temporals.format(autore.dataDiMorte, 'yyyy-MM-dd') : ''}">
+
+            <label for="nazionalita">Nazionalita</label>
+            <input type="text" id="nazionalita" name="nazionalita" th:value="${autore.nazionalita}" required>
+
+            <div th:if="${autore.urlFotografia}" class="current-photo">
+                <p>Foto attuale:</p>
+                <img th:src="${autore.urlFotografia}" alt="Foto autore">
+            </div>
+
+            <label for="foto">Nuova fotografia (opzionale)</label>
+            <input type="file" id="foto" name="foto" accept="image/*">
+
+            <button type="submit" class="btn-submit">Salva modifiche</button>
+        </form>
+    </div>
+</body>
+</html> 

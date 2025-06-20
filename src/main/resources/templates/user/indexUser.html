@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Area Utente - SiwBooks</title>
+    <link rel="stylesheet" href="/css/stile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="/images/logoLibri.jpg" alt="Logo SiwBooks" class="navbar-logo">
+            <span class="navbar-title">SiwBooks</span>
+        </div>
+        <div class="navbar-right">
+            <span class="navbar-welcome">Benvenuto, <span th:text="${userName}">Utente</span></span>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
+    </nav>
+    <main style="padding: 2rem;">
+        <div class="search-bar-unique-container" style="display: flex; justify-content: center; margin-bottom: 2.5rem; margin-top:2rem;">
+            <form th:action="@{/user/search}" method="get" style="display:flex; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.10); border-radius:30px; background:white; padding:0.2rem 1rem; min-width:400px; max-width:600px; width:100%;">
+                <select name="tipo" style="border:none; background:transparent; font-size:1.1rem; outline:none; margin-right:0.7rem; color:#4a4e69;">
+                    <option value="libro">Libro</option>
+                    <option value="autore">Autore</option>
+                </select>
+                <input type="text" name="query" placeholder="Cerca per titolo libro, nome o cognome autore..." style="flex:1; border:none; outline:none; font-size:1.1rem; padding:0.7rem 0.5rem; background:transparent;">
+                <button type="submit" style="background:transparent; border:none; outline:none; cursor:pointer; margin-left:0.5rem;">
+                    <i class="fas fa-search" style="font-size:1.3rem; color:#4a4e69;"></i>
+                </button>
+            </form>
+        </div>
+        <div th:if="${param.message}" class="error-message" th:text="${param.message}"></div>
+        <h2 style="color:#22223b; margin-bottom:1.5rem;">Lista dei libri</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
+            <div th:if="${searchTipo == 'libro' and searchQuery != null and #lists.isEmpty(libri)}" style="width: 100%; text-align: center; color: #666;">
+                Nessun libro trovato per la ricerca.
+            </div>
+            <div th:if="${#lists.isEmpty(libri) and (searchTipo == null or searchTipo == 'libro') and (searchQuery == null or searchQuery == '')}" style="width: 100%; text-align: center; color: #666;">
+                Nessun libro presente nel database.
+            </div>
+            <div th:each="libro : ${libri}" style="background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 350px; padding: 1.5rem; display: flex; flex-direction: column;" th:if="${searchTipo == null or searchTipo == 'libro'}">
+                <!-- Carousel per le immagini del libro -->
+                <div th:if="${!libro.immagini.isEmpty()}" class="carousel-container">
+                    <div class="carousel" th:id="'carousel-' + ${libro.id}">
+                        <div th:each="img : ${libro.immagini}" class="carousel-item">
+                            <img th:src="${img.url}" alt="Copertina libro" />
+                        </div>
+                    </div>
+                    <button class="carousel-button carousel-prev" th:onclick="'prevSlide(' + ${libro.id} + ')'">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-button carousel-next" th:onclick="'nextSlide(' + ${libro.id} + ')'">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <div class="carousel-indicators" th:id="'indicators-' + ${libro.id}">
+                        <div th:each="img, stat : ${libro.immagini}" 
+                             class="carousel-indicator" 
+                             th:classappend="${stat.first} ? 'active' : ''"
+                             th:onclick="'goToSlide(' + ${libro.id} + ', ' + ${stat.index} + ')'">
+                        </div>
+                    </div>
+                </div>
+                <h3 th:text="${libro.titolo}" style="margin:0 0 0.5rem 0; color:#4a4e69;"></h3>
+                <p style="margin:0 0 0.5rem 0;">Anno: <span th:text="${libro.anno}"></span></p>
+                <div style="margin-bottom:0.5rem;">
+                    <b>Autori:</b>
+                    <span th:each="autore : ${libro.autori}" style="display:inline-block; margin-right:0.5rem;">
+                        <span th:text="${autore.nome}"></span> <span th:text="${autore.cognome}"></span>
+                        <span style="font-size:0.9em; color:#888;">(<span th:text="${autore.nazionalita}"></span>)</span>
+                    </span>
+                </div>
+                <!-- Recensioni -->
+                <div style="margin-top:1rem;">
+                    <b>Recensioni:</b>
+                    <div th:if="${#lists.isEmpty(recensioniPerLibro.get(libro.id))}">
+                        <span style="color:#888;">Nessuna recensione presente.</span>
+                    </div>
+                    <div th:each="rec : ${recensioniPerLibro.get(libro.id)}" style="background:#f7f7f7; border-radius:6px; margin:0.5rem 0; padding:0.5rem 1rem;">
+                        <b th:text="${rec.titolo}"></b> -
+                        <span>Voto: <span th:text="${rec.voto}"></span>/5</span><br/>
+                        <span th:text="${rec.testo}"></span><br/>
+                        <span style="font-size:0.9em; color:#666;">di <span th:text="${rec.utente.nome}"></span> <span th:text="${rec.utente.cognome}"></span></span>
+                    </div>
+                </div>
+                <!-- Form per aggiungere recensione se non già presente per questo utente -->
+                <div th:if="${!recensionePresentePerLibro.get(libro.id)}" class="form-recensione">
+                    <form th:action="@{/user/aggiungiRecensione}" method="post">
+                        <input type="hidden" name="libroId" th:value="${libro.id}" />
+                        <label th:for="'titolo-' + ${libro.id}">Titolo recensione</label>
+                        <input type="text" th:id="'titolo-' + ${libro.id}" name="titolo" required />
+                        <label th:for="'voto-' + ${libro.id}">Voto</label>
+                        <select th:id="'voto-' + ${libro.id}" name="voto" required>
+                            <option value="">Seleziona voto</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                        <label th:for="'testo-' + ${libro.id}">Testo</label>
+                        <textarea th:id="'testo-' + ${libro.id}" name="testo" rows="3" required></textarea>
+                        <button type="submit">Aggiungi Recensione</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Sezione Autori -->
+        <div style="margin-top: 3rem;">
+            <h2 style="color:#22223b; margin-bottom:1.5rem;">Lista autori</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
+                <div th:if="${searchTipo == 'autore' and searchQuery != null and #lists.isEmpty(autori)}" style="width: 100%; text-align: center; color: #666;">
+                    Nessun autore trovato per la ricerca.
+                </div>
+                <div th:if="${#lists.isEmpty(autori) and (searchTipo == null or searchTipo == 'autore') and (searchQuery == null or searchQuery == '')}" style="width: 100%; text-align: center; color: #666;">
+                    Nessun autore presente nel database.
+                </div>
+                <div th:each="autore : ${autori}" style="background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 350px; padding: 1.5rem; display: flex; flex-direction: column; align-items: center;" th:if="${searchTipo == null or searchTipo == 'autore'}">
+                    <img th:if="${autore.urlFotografia}" th:src="${autore.urlFotografia}" alt="Foto autore" style="height: 120px; width: 120px; object-fit:cover; border-radius: 50%; border: 2px solid #eee; margin-bottom: 1rem;"/>
+                    <h3 th:text="${autore.nome + ' ' + autore.cognome}" style="margin:0 0 0.5rem 0; color:#4a4e69;"></h3>
+                    <p style="margin:0 0 0.5rem 0;">Nato il: <span th:text="${#temporals.format(autore.dataDiNascita, 'dd/MM/yyyy')}"></span></p>
+                    <p th:if="${autore.dataDiMorte}" style="margin:0 0 0.5rem 0;">Morto il: <span th:text="${#temporals.format(autore.dataDiMorte, 'dd/MM/yyyy')}"></span></p>
+                    <p style="margin:0 0 0.5rem 0;">Nazionalita: <span th:text="${autore.nazionalita}"></span></p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="main-footer">
+        <p>&copy; 2025 SiwBooks.</p>
+    </footer>
+</body>
+</html> 

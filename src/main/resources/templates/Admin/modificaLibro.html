@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifica Libro - SiwBooks</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background: #f7f7f7; }
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #22223b;
+            color: #fff;
+            padding: 0.5rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .navbar-left {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-logo {
+            height: 48px;
+            margin-right: 1rem;
+        }
+        .navbar-title {
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .logout-btn {
+            background: #9a8c98;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .logout-btn:hover {
+            background: #4a4e69;
+        }
+        .form-container {
+            background: #fff;
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 2rem 2.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+        h2 { color: #4a4e69; text-align: center; }
+        label { display: block; margin-top: 1.2rem; font-weight: bold; }
+        input, select { width: 100%; padding: 0.6rem; margin-top: 0.3rem; border-radius: 5px; border: 1px solid #ccc; }
+        .btn-submit {
+            background: #4a4e69;
+            color: #fff;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 2rem;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-submit:hover { background: #9a8c98; }
+        .error-message {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+        }
+        .current-images {
+            margin: 1rem 0;
+        }
+        .current-images img {
+            max-width: 150px;
+            margin: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="/images/logoLibri.jpg" alt="Logo SiwBooks" class="navbar-logo">
+            <span class="navbar-title">SiwBooks</span>
+        </div>
+        <div class="navbar-right">
+            <a href="/admin/index" style="color: #fff; text-decoration: none; margin-right: 1rem;">Torna alla Dashboard</a>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="form-container">
+        <h2>Modifica libro</h2>
+        
+        <div th:if="${error}" class="error-message" th:text="${error}"></div>
+        
+        <form th:action="@{/admin/modificaLibro/{id}(id=${libro.id})}" method="post" enctype="multipart/form-data">
+            <label for="titolo">Titolo</label>
+            <input type="text" id="titolo" name="titolo" th:value="${libro.titolo}" required>
+
+            <label for="anno">Anno di pubblicazione</label>
+            <input type="number" id="anno" name="anno" th:value="${libro.anno}" min="1900" max="2025" required>
+
+            <label>Autori</label>
+            <ul style="list-style: none; padding: 0; margin: 0 0 1rem 0;">
+                <li th:each="autore : ${autori}" style="display: flex; align-items: center; margin-bottom: 0.1rem; justify-content: flex-start;">
+                    <label th:for="'autore-' + ${autore.id}" th:text="${autore.nome + ' ' + autore.cognome}" style="flex:1; text-align:left; cursor:pointer; margin-right:0.5em;"></label>
+                    <input type="checkbox" th:id="'autore-' + ${autore.id}" name="autoreIds" th:value="${autore.id}" th:checked="${libro.autori.contains(autore)}">
+                </li>
+            </ul>
+
+            <div th:if="${!libro.immagini.isEmpty()}" class="current-images">
+                <p>Immagini attuali:</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    <img th:each="img : ${libro.immagini}" th:src="${img.url}" alt="Copertina libro">
+                </div>
+            </div>
+
+            <label for="immagini">Nuove immagini (opzionale)</label>
+            <input type="file" id="immagini" name="immagini" accept="image/*" multiple>
+
+            <button type="submit" class="btn-submit">Salva modifiche</button>
+        </form>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,440 @@
+/* Importa i font di Google */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap');
+
+/* Variabili CSS per i colori */
+:root {
+    --primary-color: #5C4033; /* Marrone scuro, come una copertina di libro */
+    --secondary-color: #D4B89F; /* Beige chiaro, come carta invecchiata */
+    --accent-color: #A0522D; /* Marrone rossiccio, per dettagli */
+    --text-color: #333333;
+    --light-text-color: #F8F8F8;
+    --background-color: #FDF5E6; /* Bianco sporco / crema */
+    --error-color: #D32F2F; /* Rosso per messaggi di errore */
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.navbar {
+    width: 100%;
+    min-width: 0;
+    left: 0;
+    top: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #22223b;
+    color: #fff;
+    padding: 0.5rem 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    margin: 0;
+    box-sizing: border-box;
+}
+
+main {
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+/* Header */
+.main-header {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: var(--light-text-color);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: flex-end; /* Allinea a destra le info utente/azioni */
+    align-items: center;
+    box-shadow: 0 2px 5px var(--shadow-color);
+    position: fixed; /* Rende l'header fisso in alto */
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.user-info span {
+    margin-right: 15px;
+    font-weight: 600;
+}
+
+.user-info a, .user-actions a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-weight: 600;
+}
+
+.user-info a:hover, .user-actions a:hover {
+    background-color: var(--accent-color);
+    color: var(--light-text-color);
+}
+
+.register-link-header {
+    background-color: var(--accent-color);
+    color: var(--light-text-color);
+    margin-left: 10px;
+}
+
+.register-link-header:hover {
+    background-color: darken(var(--accent-color), 10%); /* Scurisce leggermente */
+}
+
+/* Contenitore principale del login */
+.login-container {
+    max-width: 400px;
+    width: 100%;
+    margin: 40px auto;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px var(--shadow-color);
+    background-color: #fff;
+    text-align: center;
+}
+
+/* Logo */
+.logo-section {
+    margin-bottom: 30px;
+}
+
+.app-logo {
+    max-width: 180px; /* Dimensione del logo */
+    height: auto;
+    border-radius: 8px; /* Angoli arrotondati per il logo */
+}
+
+/* Titolo Login */
+.login-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2em;
+    color: #22223b !important;
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+/* Form di Login */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Spazio tra i gruppi di form */
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.95em;
+}
+
+.form-group input {
+    width: calc(100% - 24px); /* Sottrae padding per larghezza corretta */
+    padding: 12px;
+    border: 1px solid #D1C4B3; /* Bordo sottile */
+    border-radius: 8px;
+    font-size: 1em;
+    color: var(--text-color);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: var(--accent-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(160, 82, 45, 0.2); /* Ombra leggera al focus */
+}
+
+/* Messaggio di errore */
+.error-message {
+    color: var(--error-color);
+    font-size: 0.9em;
+    margin-top: -10px; /* Avvicina al campo password */
+    margin-bottom: 20px;
+    text-align: center;
+    background-color: rgba(211, 47, 47, 0.1);
+    border-radius: 6px;
+    padding: 10px;
+}
+
+/* Bottone di Login */
+.submit-button, .btn-submit {
+    background-color: #22223b;
+    color: #fff;
+    padding: 15px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px var(--shadow-color);
+    letter-spacing: 0.5px;
+}
+
+.submit-button:hover, .btn-submit:hover {
+    background-color: #4a4e69;
+}
+
+.submit-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Link di Registrazione */
+.register-prompt {
+    margin-top: 30px;
+    font-size: 0.95em;
+    color: var(--text-color);
+}
+
+.register-link-form {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.register-link-form:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+/* Footer */
+.main-footer {
+    width: 100%;
+    background-color: #22223b;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    margin-top: auto;
+    box-shadow: 0 -2px 5px var(--shadow-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-header {
+        padding: 10px 20px;
+        justify-content: center; /* Centra le azioni utente su schermi piccoli */
+    }
+
+    .user-info, .user-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .login-container {
+        padding: 25px;
+        margin-top: 80px; /* Regola margine per schermi più piccoli */
+        margin-bottom: 30px;
+    }
+
+    .login-title {
+        font-size: 1.8em;
+    }
+
+    .submit-button {
+        padding: 12px 20px;
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-container {
+        padding: 20px;
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+
+    .app-logo {
+        max-width: 150px;
+    }
+}
+
+/* --- Stili aggiunti da indexUser.html --- */
+body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background: #f7f7f7; }
+.navbar { display: flex; align-items: center; justify-content: space-between; background: #22223b; color: #fff; padding: 0.5rem 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.navbar-left { display: flex; align-items: center; }
+.navbar-logo { height: 48px; margin-right: 1rem; }
+.navbar-title { font-size: 2rem; font-weight: bold; letter-spacing: 2px; }
+.navbar-right { display: flex; align-items: center; gap: 1.5rem; }
+.navbar-welcome { font-size: 1.1rem; }
+.logout-btn { background: #9a8c98; color: #fff; border: none; padding: 0.5rem 1.2rem; border-radius: 4px; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
+.logout-btn:hover { background: #4a4e69; }
+.carousel-container { position: relative; width: 100%; height: 200px; margin-bottom: 1rem; overflow: hidden; border-radius: 6px; }
+.carousel { display: flex; transition: transform 0.5s ease-in-out; height: 100%; }
+.carousel-item { min-width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+.carousel-item img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; }
+.carousel-button { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.5); color: white; border: none; padding: 0.5rem; cursor: pointer; z-index: 2; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: background 0.3s; }
+.carousel-button:hover { background: rgba(0, 0, 0, 0.8); }
+.carousel-prev { left: 10px; }
+.carousel-next { right: 10px; }
+.carousel-indicators { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 2; }
+.carousel-indicator { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.5); cursor: pointer; transition: background 0.3s; }
+.carousel-indicator.active { background: white; }
+.form-recensione { margin-top: 1rem; background: #f7f7f7; border-radius: 6px; padding: 1rem; }
+.form-recensione input, .form-recensione textarea, .form-recensione select { width: 100%; margin-bottom: 0.5rem; padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; }
+.form-recensione button { background: #4a4e69; color: #fff; border: none; padding: 0.5rem 1.2rem; border-radius: 4px; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
+.form-recensione button:hover { background: #9a8c98; }
+.user-section-title { color:#22223b; margin-bottom:1.5rem; }
+.user-books-list { display: flex; flex-wrap: wrap; gap: 2rem; }
+.user-books-empty { width: 100%; text-align: center; color: #666; }
+.user-book-card { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 350px; padding: 1.5rem; display: flex; flex-direction: column; }
+.user-book-title { margin:0 0 0.5rem 0; color:#4a4e69; }
+.user-book-year { margin:0 0 0.5rem 0; }
+.user-book-authors { margin-bottom:0.5rem; }
+.user-book-author { display:inline-block; margin-right:0.5rem; }
+.user-book-author-nation { font-size:0.9em; color:#888; }
+.user-book-reviews { margin-top:1rem; }
+.user-book-no-reviews { color:#888; }
+.user-book-review { background:#f7f7f7; border-radius:6px; margin:0.5rem 0; padding:0.5rem 1rem; }
+.user-book-review-author { font-size:0.9em; color:#666; }
+.user-authors-section { margin-top: 3rem; }
+.user-authors-list { display: flex; flex-wrap: wrap; gap: 2rem; }
+.user-authors-empty { width: 100%; text-align: center; color: #666; }
+.user-author-card { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 350px; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; }
+.user-author-photo { height: 120px; width: 120px; object-fit:cover; border-radius: 50%; border: 2px solid #eee; margin-bottom: 1rem; }
+.user-author-name { margin:0 0 0.5rem 0; color:#4a4e69; }
+.user-author-birth { margin:0 0 0.5rem 0; }
+.user-author-death { margin:0 0 0.5rem 0; }
+.user-author-nation { margin:0 0 0.5rem 0; }
+
+/* Link login e registrati nella navbar bianchi */
+.navbar .login-link, .navbar .register-link-header {
+    color: #fff !important;
+    font-weight: bold;
+    background: none !important;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0.5rem 1.2rem;
+    text-decoration: none;
+}
+
+.navbar .login-link:hover, .navbar .register-link-header:hover {
+    color: #9a8c98 !important;
+    background: none !important;
+}
+
+.user-book-login-prompt a {
+    color: #22223b !important;
+    text-decoration: underline !important;
+    font-weight: normal;
+    background: none !important;
+}
+
+label {
+    color: #22223b !important;
+    font-weight: bold;
+}
+
+.register-link-header, .login-link {
+    background: none !important;
+    color: #fff !important;
+    font-weight: bold;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0.5rem 1.2rem;
+}
+
+.register-link-header:hover, .login-link:hover {
+    color: #9a8c98 !important;
+    background: none !important;
+}
+
+/* Stile form aggiungi libro/autore */
+.form-container {
+    background: #fff;
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem 2.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.form-container h2 {
+    color: #22223b;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.form-container label {
+    display: block;
+    margin-top: 1.2rem;
+    font-weight: bold;
+    color: #22223b;
+}
+
+.form-container input,
+.form-container select {
+    width: 100%;
+    padding: 0.6rem;
+    margin-top: 0.3rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+}
+
+.btn-submit {
+    background: #22223b;
+    color: #fff;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 2rem;
+    width: 100%;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-submit:hover {
+    background: #4a4e69;
+}
+
+/* Stile anteprima immagini upload nei form */
+.image-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.image-preview {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+    display: block;
+}
